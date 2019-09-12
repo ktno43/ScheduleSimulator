@@ -9,6 +9,7 @@ using System.Threading;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using HtmlAgilityPack;
 
 namespace DbPopulator
 {
@@ -23,7 +24,7 @@ namespace DbPopulator
 
 
         [ClassInitialize]
-        public static void Initialize(TestContext context)
+        public static void initialize(TestContext context)
         {
             driver = new ChromeDriver(); // Initialize chrome driver
             driver.Navigate().GoToUrl("https://mynorthridge.csun.edu/psp/PANRPRD/EMPLOYEE/SA/c/NR_SSS_COMMON_MENU.NR_SSS_SOC_BASIC_C.GBL?"); // Navigate to URL
@@ -32,7 +33,7 @@ namespace DbPopulator
         }
 
         [ClassCleanup]
-        public static void Cleanup()
+        public static void cleanup()
         {
             driver.Close(); // Close current browser window currently in focus
 
@@ -78,15 +79,25 @@ namespace DbPopulator
             }
         }
 
-        public static void WaitForJSLoad(int timeoutSec = 15)
+        public static void waitForJSLoad(int timeoutSec = 15)
         {
-            IJavaScriptExecutor js = (IJavaScriptExecutor)driver; 
+            IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
             WebDriverWait wait = new WebDriverWait(driver, new TimeSpan(0, 0, timeoutSec));
             wait.Until(wd => js.ExecuteScript("return document.readyState").ToString() == "complete");
         }
 
+        private String getInnerText(HtmlDocument doc, String id)
+        {
+            return doc.GetElementbyId(id).InnerText;
+        }
+
+        private String removeNewline(String str)
+        {
+            return str.Replace("\r\n", string.Empty);
+        }
+
         [TestMethod]
-        public void TestMethod2()
+        public void scrapCourseDb()
         {
             driver.SwitchTo().Frame("ptifrmtgtframe"); // Switch to content frame
             SelectElement subjectDdList = new SelectElement(driver.FindElementById("NR_SSS_SOC_NWRK_SUBJECT")); // Select drop down list
@@ -97,10 +108,10 @@ namespace DbPopulator
             String courseID = "SOC_DETAIL$"; // Prefix ID for courses
             Boolean bMoreCourses = true; // Boolean for while loop
             int section = 0; // Section index
-          
+
             String strSections = ""; // String representation of number of sections
             int numSections = 0; // Number of sections
-         
+
             String courseName = "";
 
             for (int j = 30; j < 31; j++)
@@ -124,7 +135,7 @@ namespace DbPopulator
                 strSections = driver.FindElementByClassName("PSGRIDCOUNTER").Text; // String representation of number of sections offered in that course
 
                 numSections = Int32.Parse(strSections.Substring(strSections.LastIndexOf(' ') + 1)); // Get substring for total # of sections as an int
-    
+
 
                 LOG.WriteLine(DateTime.Now + "  : " + courseName + " - " + numSections + " available section(s)."); // Write to log 
 
@@ -161,6 +172,107 @@ namespace DbPopulator
 
                 driver.Navigate().Refresh(); // Refresh page and switch course
                 driver.SwitchTo().Frame("ptifrmtgtframe"); // Switch to content frame
+            }
+        }
+
+        [TestMethod]
+        public void subjParser()
+        {
+            driver.SwitchTo().Frame("ptifrmtgtframe"); // Switch to content frame
+            SelectElement subjectDdList = new SelectElement(driver.FindElementById("NR_SSS_SOC_NWRK_SUBJECT")); // Select drop down list
+
+            IList<IWebElement> subjectList = subjectDdList.Options; //Get list of IWeb elements
+            int numSubjects = subjectList.Count; // Number of subjects CSUN has
+
+            String courseSecHtml = "";
+            String courseSecID = "NR_SSS_SOC_NWRK_DESCR15$";
+            int numSections = 0;
+
+            String courseNumHtml = "";
+            String courseNum = "";
+            String courseNumID = "win0divNR_SSS_SOC_NSEC_CLASS_NBR$";
+
+            String courseLocHtml = "";
+            String courseLoc = "";
+            String courseLocID = "win0divMAP$";
+
+            String courseDayHtml = "";
+            string courseDay = "";
+            String courseDayID = "win0divNR_SSS_SOC_NWRK_DESCR20$";
+
+            String courseTimeHtml = "";
+            String courseTime = "";
+            String courseTimeID = "win0divNR_SSS_SOC_NSEC_DESCR25_2$";
+
+            String courseInstrHtml = "";
+            String courseInstr = "";
+            String courseInstrID = "win0divFACURL$";
+
+            String courseDescrHtml = "";
+            String courseDescr = "";
+            String courseDescrID = "NR_SSS_SOC_NWRK_DESCR100_2$";
+
+            String subjName = "";
+
+            for (int subjectIndex = 1; subjectIndex < numSubjects; subjectIndex++)
+            {
+                subjectDdList = new SelectElement(driver.FindElementById("NR_SSS_SOC_NWRK_SUBJECT")); // Select drop down list
+                subjectDdList.SelectByIndex(subjectIndex); // Select major
+
+                if (isWheelGone())
+                {
+                    subjName = driver.FindElementById("NR_SSS_SOC_NWRK_SUBJECT").GetAttribute("value");
+
+                    fixIllegalChar(ref subjName);
+
+                    HtmlDocument doc = new HtmlDocument();
+                    String filePath = @"F:\Projects\aspNet\DbPopulator\bin\Debug\" + subjName + "_DOM.txt";
+                    doc.Load(filePath);
+
+                    String coursesHtml = doc.GetElementbyId("PSCENTER").InnerText;
+                    int numCourses = Int32.Parse(coursesHtml.Substring(coursesHtml.LastIndexOf(' ') + 1));
+
+                    StreamWriter sw = new StreamWriter(subjName + "_parsed.txt");
+
+                    for (int courseIndex = 0, courseRow = 0; courseIndex < numCourses; courseIndex++)
+                    {
+                        courseDescrHtml = getInnerText(doc, courseDescrID + courseIndex);
+                        courseDescr = courseDescrHtml.Substring(0, courseDescrHtml.IndexOf('-')).Trim();
+
+                        courseSecHtml = getInnerText(doc, courseSecID + courseIndex);
+                        numSections = Int32.Parse(Regex.Match(courseSecHtml, @"\d+").Value);
+
+                        //sw.WriteLine(courseDescrHtml + ": " + numSections + " section(s)");
+                        for (int sectionIndex = 0; sectionIndex < numSections; sectionIndex++, courseRow++)
+                        {
+                            courseNumHtml = getInnerText(doc, courseNumID + courseRow);
+                            courseNum = removeNewline(courseNumHtml);
+
+                            courseLocHtml = getInnerText(doc, courseLocID + courseRow);
+                            courseLoc = removeNewline(courseLocHtml);
+
+                            courseDayHtml = getInnerText(doc, courseDayID + courseRow);
+                            courseDay = removeNewline(courseDayHtml);
+                            if (courseDay.Equals("&nbsp;"))
+                                courseDay = "TBA";
+
+                            courseTimeHtml = getInnerText(doc, courseTimeID + courseRow);
+                            courseTime = removeNewline(courseTimeHtml);
+
+                            courseInstrHtml = getInnerText(doc, courseInstrID + courseRow);
+                            courseInstr = removeNewline(courseInstrHtml);
+
+                            sw.WriteLine(courseDescr);
+                            sw.WriteLine(courseNum);
+                            sw.WriteLine(courseLoc);
+                            sw.WriteLine(courseDay);
+                            sw.WriteLine(courseTime);
+                            sw.WriteLine(courseInstr + "\r\n");
+                        }
+                        //    sw.WriteLine("\r\n");
+                    }
+                    sw.Close();
+                }
             }
         }
     }
