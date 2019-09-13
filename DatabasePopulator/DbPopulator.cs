@@ -17,7 +17,7 @@ namespace DbPopulator
     public class DbPopulator
     {
         private static ChromeDriver driver = null;
-        private static StreamWriter LOG = null;
+        private static StreamWriter swLog = null;
 
         const int SECOND = 1000;
         const int MILLISECOND = 1;
@@ -29,7 +29,7 @@ namespace DbPopulator
             driver = new ChromeDriver(); // Initialize chrome driver
             driver.Navigate().GoToUrl("https://mynorthridge.csun.edu/psp/PANRPRD/EMPLOYEE/SA/c/NR_SSS_COMMON_MENU.NR_SSS_SOC_BASIC_C.GBL?"); // Navigate to URL
             driver.Manage().Window.Maximize(); // Maximize window
-            LOG = new StreamWriter("log.txt"); // Log.txt
+            swLog = new StreamWriter("log.txt"); // Log.txt
         }
 
         [ClassCleanup]
@@ -44,7 +44,7 @@ namespace DbPopulator
                 chromeDriverProcess.Kill();
             }
 
-            LOG.Close(); // Close the log
+            swLog.Close(); // Close the log
         }
 
         private Boolean isWheelGone()
@@ -88,12 +88,12 @@ namespace DbPopulator
 
         private String getInnerText(HtmlDocument doc, String id)
         {
-            return doc.GetElementbyId(id).InnerText;
+            return doc.GetElementbyId(id).InnerText; // Get the text enclosed in the element
         }
 
         private String removeNewline(String str)
         {
-            return str.Replace("\r\n", string.Empty);
+            return str.Replace("\r\n", string.Empty); // Remove the newline in a string
         }
 
         [TestMethod]
@@ -114,7 +114,7 @@ namespace DbPopulator
 
             String courseName = "";
 
-            for (int j = 30; j < 31; j++)
+            for (int j = 1; j < numSubjects; j++)
             {
                 section = 0; // Section starts at index 0
                 bMoreCourses = true; // Always start with true since they're always more courses at this point
@@ -122,9 +122,9 @@ namespace DbPopulator
                 subjectDdList = new SelectElement(driver.FindElementById("NR_SSS_SOC_NWRK_SUBJECT")); // Select drop down list
                 subjectDdList.SelectByIndex(j); // Select major
 
-                courseName = driver.FindElementById("NR_SSS_SOC_NWRK_SUBJECT").GetAttribute("value");
+                courseName = driver.FindElementById("NR_SSS_SOC_NWRK_SUBJECT").GetAttribute("value"); // Get the value of the selected item in the drop down list
 
-                fixIllegalChar(ref courseName);
+                fixIllegalChar(ref courseName); // Fix any illegal characters
 
 
                 Thread.Sleep(1 * SECOND); // Wait to click the search button
@@ -137,7 +137,7 @@ namespace DbPopulator
                 numSections = Int32.Parse(strSections.Substring(strSections.LastIndexOf(' ') + 1)); // Get substring for total # of sections as an int
 
 
-                LOG.WriteLine(DateTime.Now + "  : " + courseName + " - " + numSections + " available section(s)."); // Write to log 
+                swLog.WriteLine(DateTime.Now + "  : " + courseName + " - " + numSections + " available section(s)."); // Write to log 
 
                 while (bMoreCourses) // While there are more courses
                 {
@@ -146,15 +146,15 @@ namespace DbPopulator
                         if (isWheelGone()) // If the processing wheel is gone, click!
                         {
                             driver.FindElementById(courseID + section).Click(); // Expand every course through click command
-                            LOG.WriteLine((courseID + section) + " click successful."); // Log click
+                            swLog.WriteLine((courseID + section) + " click successful."); // Log click
 
                             section += 1; // Increment section
                         }
 
                         else // Problem if here
                         {
-                            LOG.WriteLine(DateTime.Now);
-                            LOG.WriteLine("ERROR: Problem occurred while trying to click classes");
+                            swLog.WriteLine(DateTime.Now);
+                            swLog.WriteLine("ERROR: Problem occurred while trying to click classes");
                         }
                     }
 
@@ -167,8 +167,8 @@ namespace DbPopulator
                 String pageSource = driver.PageSource; // Read entire course DOM of the page
                 File.WriteAllText(courseName + "_DOM.txt", pageSource); // Write current course DOM to text file based off course
 
-                LOG.WriteLine("\r\n\r\n" + DateTime.Now); // Write to log
-                LOG.WriteLine(courseName + " expanded " + section + " section(s) successfully.\r\n\r\n\r\n"); // Write number of expanded sections
+                swLog.WriteLine("\r\n\r\n" + DateTime.Now); // Write to log
+                swLog.WriteLine(courseName + " expanded " + section + " section(s) successfully.\r\n\r\n\r\n"); // Write number of expanded sections
 
                 driver.Navigate().Refresh(); // Refresh page and switch course
                 driver.SwitchTo().Frame("ptifrmtgtframe"); // Switch to content frame
@@ -184,96 +184,124 @@ namespace DbPopulator
             IList<IWebElement> subjectList = subjectDdList.Options; //Get list of IWeb elements
             int numSubjects = subjectList.Count; // Number of subjects CSUN has
 
+            // Course section 
             String courseSecHtml = "";
             String courseSecID = "NR_SSS_SOC_NWRK_DESCR15$";
             int numSections = 0;
 
+            // Course number
             String courseNumHtml = "";
             String courseNum = "";
             String courseNumID = "win0divNR_SSS_SOC_NSEC_CLASS_NBR$";
 
+            // Course location
             String courseLocHtml = "";
             String courseLoc = "";
             String courseLocID = "win0divMAP$";
 
+            // Course days
             String courseDayHtml = "";
             string courseDay = "";
             String courseDayID = "win0divNR_SSS_SOC_NWRK_DESCR20$";
 
+            // Course times
             String courseTimeHtml = "";
             String courseTime = "";
             String courseTimeID = "win0divNR_SSS_SOC_NSEC_DESCR25_2$";
 
+            // Course instructor
             String courseInstrHtml = "";
             String courseInstr = "";
             String courseInstrID = "win0divFACURL$";
 
+            // Course description
             String courseDescrHtml = "";
             String courseDescr = "";
             String courseDescrID = "NR_SSS_SOC_NWRK_DESCR100_2$";
+            String courseTitle = "";
 
             String subjName = "";
+            String subjTitle = "";
 
+            StreamWriter swParse = new StreamWriter("log_parse.txt");
             for (int subjectIndex = 1; subjectIndex < numSubjects; subjectIndex++)
             {
                 subjectDdList = new SelectElement(driver.FindElementById("NR_SSS_SOC_NWRK_SUBJECT")); // Select drop down list
                 subjectDdList.SelectByIndex(subjectIndex); // Select major
 
-                if (isWheelGone())
+                if (isWheelGone()) // If wheel is gone 
                 {
-                    subjName = driver.FindElementById("NR_SSS_SOC_NWRK_SUBJECT").GetAttribute("value");
+                    subjName = driver.FindElementById("NR_SSS_SOC_NWRK_SUBJECT").GetAttribute("value"); // Get the attribute  of drop down list
 
-                    fixIllegalChar(ref subjName);
+                    subjectDdList = new SelectElement(driver.FindElementById("NR_SSS_SOC_NWRK_SUBJECT")); // Select drop down list
+                    subjTitle = subjectDdList.SelectedOption.Text;
 
-                    HtmlDocument doc = new HtmlDocument();
-                    String filePath = @"F:\Projects\aspNet\DbPopulator\bin\Debug\" + subjName + "_DOM.txt";
-                    doc.Load(filePath);
+                    fixIllegalChar(ref subjName); // Remove illegal modifiers
 
-                    String coursesHtml = doc.GetElementbyId("PSCENTER").InnerText;
-                    int numCourses = Int32.Parse(coursesHtml.Substring(coursesHtml.LastIndexOf(' ') + 1));
+                    HtmlDocument doc = new HtmlDocument(); // Create html document 
+                    String filePath = @"F:\Projects\aspNet\DbPopulator\bin\Debug\" + subjName + "_DOM.txt"; // File path to location of DOM file
+                    doc.Load(filePath); // Load path to course DOM
 
-                    StreamWriter sw = new StreamWriter(subjName + "_parsed.txt");
+                    String courseHtml = getInnerText(doc, "PSCENTER"); // Get string of offered courses within that subject
+                    int numCourses = Int32.Parse(courseHtml.Substring(courseHtml.LastIndexOf(' ') + 1)); // Get number of courses under specified subject
 
-                    for (int courseIndex = 0, courseRow = 0; courseIndex < numCourses; courseIndex++)
+                    StreamWriter sw = new StreamWriter(subjName + "_parsed.txt"); // Create new stream writer to store parsed information
+                    swParse.Write(DateTime.Now); // parse log subject start
+                    swParse.WriteLine("   " + subjTitle + ": " + numCourses + " course(s)"); // parse log subject name
+
+                    for (int courseIndex = 0, courseRow = 0; courseIndex < numCourses; courseIndex++) // For the number of courses under the specified subject
                     {
-                        courseDescrHtml = getInnerText(doc, courseDescrID + courseIndex);
-                        courseDescr = courseDescrHtml.Substring(0, courseDescrHtml.IndexOf('-')).Trim();
+                        courseDescrHtml = getInnerText(doc, courseDescrID + courseIndex); // Get the current course description 
+                        courseTitle = courseDescrHtml.Substring(0, courseDescrHtml.IndexOf('(')).Trim();
+                        courseDescr = courseDescrHtml.Substring(0, courseDescrHtml.IndexOf('-')).Trim(); // Trim the description to show only the class and section
 
-                        courseSecHtml = getInnerText(doc, courseSecID + courseIndex);
-                        numSections = Int32.Parse(Regex.Match(courseSecHtml, @"\d+").Value);
+                        courseSecHtml = getInnerText(doc, courseSecID + courseIndex); // Get the string of offered sections of that course
+                        numSections = Int32.Parse(Regex.Match(courseSecHtml, @"\d+").Value); // Convert that string to a number
 
+
+                        swParse.WriteLine(courseTitle + ": " + numSections + " section(s)");
                         //sw.WriteLine(courseDescrHtml + ": " + numSections + " section(s)");
-                        for (int sectionIndex = 0; sectionIndex < numSections; sectionIndex++, courseRow++)
+                        for (int sectionIndex = 0; sectionIndex < numSections; sectionIndex++, courseRow++) // For the number of sections within the class
                         {
-                            courseNumHtml = getInnerText(doc, courseNumID + courseRow);
+                            courseNumHtml = getInnerText(doc, courseNumID + courseRow); // Get the course number 
                             courseNum = removeNewline(courseNumHtml);
 
-                            courseLocHtml = getInnerText(doc, courseLocID + courseRow);
+                            courseLocHtml = getInnerText(doc, courseLocID + courseRow); // Get the location of the course
                             courseLoc = removeNewline(courseLocHtml);
 
-                            courseDayHtml = getInnerText(doc, courseDayID + courseRow);
+                            courseDayHtml = getInnerText(doc, courseDayID + courseRow); // Get the instruction days the class is taught
                             courseDay = removeNewline(courseDayHtml);
-                            if (courseDay.Equals("&nbsp;"))
+                            if (courseDay.Equals("&nbsp;")) // If day is empty, the string is TBA
                                 courseDay = "TBA";
 
-                            courseTimeHtml = getInnerText(doc, courseTimeID + courseRow);
+                            courseTimeHtml = getInnerText(doc, courseTimeID + courseRow); // Get the time the class is taught
                             courseTime = removeNewline(courseTimeHtml);
 
-                            courseInstrHtml = getInnerText(doc, courseInstrID + courseRow);
+                            courseInstrHtml = getInnerText(doc, courseInstrID + courseRow); // Get the name of the instructor who is teaching the class
                             courseInstr = removeNewline(courseInstrHtml);
 
+                            // write to the stream writer with information above
                             sw.WriteLine(courseDescr);
                             sw.WriteLine(courseNum);
                             sw.WriteLine(courseLoc);
                             sw.WriteLine(courseDay);
                             sw.WriteLine(courseTime);
                             sw.WriteLine(courseInstr + "\r\n");
+                            swParse.WriteLine("Section " + (sectionIndex + 1) + " of " + courseDescr + ": " + courseNum + " parsed successfully."); // parse log
                         }
-                        //    sw.WriteLine("\r\n");
+                        swParse.WriteLine();
                     }
-                    sw.Close();
+                    swParse.WriteLine("\r\n\r\n");
+                    sw.Close(); // Close stream writer
+                }
+
+                else // Problem if here
+                {
+                    swParse.WriteLine(DateTime.Now);
+                    swParse.WriteLine("ERROR: Problem occurred while trying to parse the DOM.");
                 }
             }
+            swParse.Close();
         }
     }
 }
