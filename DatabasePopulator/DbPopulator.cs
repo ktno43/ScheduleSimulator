@@ -18,6 +18,7 @@ namespace DbPopulator
     {
         private static ChromeDriver driver = null;
         private static StreamWriter swLog = null;
+        private static StreamWriter swParseLog = null;
 
         const int SECOND = 1000;
         const int MILLISECOND = 1;
@@ -30,6 +31,7 @@ namespace DbPopulator
             driver.Navigate().GoToUrl("https://mynorthridge.csun.edu/psp/PANRPRD/EMPLOYEE/SA/c/NR_SSS_COMMON_MENU.NR_SSS_SOC_BASIC_C.GBL?"); // Navigate to URL
             driver.Manage().Window.Maximize(); // Maximize window
             swLog = new StreamWriter("log.txt"); // Log.txt
+            swParseLog = new StreamWriter("log_parse.txt"); // log_parse.txt
         }
 
         [ClassCleanup]
@@ -45,6 +47,7 @@ namespace DbPopulator
             }
 
             swLog.Close(); // Close the log
+            swParseLog.Close(); // close the parse log
         }
 
         private Boolean isWheelGone()
@@ -96,6 +99,24 @@ namespace DbPopulator
             return str.Replace("\r\n", string.Empty); // Remove the newline in a string
         }
 
+        private void fixCsvChar(ref String refData)
+        {
+            if (refData.Contains("\"")) // Fix double quotes
+            {
+                refData = refData.Replace("\"", "\"\"");
+            }
+
+            if (refData.Contains(","))  // Fix commas
+            {
+                refData = String.Format("\"{0}\"", refData);
+            }
+
+            if (refData.Contains(System.Environment.NewLine)) // Fix new lines
+            {
+                refData = String.Format("\"{0}\"", refData);
+            }
+        }
+
         [TestMethod]
         public void scrapCourseDb()
         {
@@ -105,89 +126,16 @@ namespace DbPopulator
             IList<IWebElement> subjectList = subjectDdList.Options; //Get list of IWeb elements
             int numSubjects = subjectList.Count; // Number of subjects CSUN has
 
-            String courseID = "SOC_DETAIL$"; // Prefix ID for courses
-            Boolean bMoreCourses = true; // Boolean for while loop
-            int section = 0; // Section index
-
-            String strSections = ""; // String representation of number of sections
             int numSections = 0; // Number of sections
 
-            String courseName = "";
-
-            for (int j = 1; j < numSubjects; j++)
-            {
-                section = 0; // Section starts at index 0
-                bMoreCourses = true; // Always start with true since they're always more courses at this point
-
-                subjectDdList = new SelectElement(driver.FindElementById("NR_SSS_SOC_NWRK_SUBJECT")); // Select drop down list
-                subjectDdList.SelectByIndex(j); // Select major
-
-                courseName = driver.FindElementById("NR_SSS_SOC_NWRK_SUBJECT").GetAttribute("value"); // Get the value of the selected item in the drop down list
-
-                fixIllegalChar(ref courseName); // Fix any illegal characters
-
-
-                Thread.Sleep(1 * SECOND); // Wait to click the search button
-                driver.FindElementById("NR_SSS_SOC_NWRK_BASIC_SEARCH_PB").Click(); // Click the search button
-                Thread.Sleep(1 * SECOND + 500 * MILLISECOND); // Wait for number of sections
-
-
-                strSections = driver.FindElementByClassName("PSGRIDCOUNTER").Text; // String representation of number of sections offered in that course
-
-                numSections = Int32.Parse(strSections.Substring(strSections.LastIndexOf(' ') + 1)); // Get substring for total # of sections as an int
-
-
-                swLog.WriteLine(DateTime.Now + "  : " + courseName + " - " + numSections + " available section(s)."); // Write to log 
-
-                while (bMoreCourses) // While there are more courses
-                {
-                    try // Try to expand every class
-                    {
-                        if (isWheelGone()) // If the processing wheel is gone, click!
-                        {
-                            driver.FindElementById(courseID + section).Click(); // Expand every course through click command
-                            swLog.WriteLine((courseID + section) + " click successful."); // Log click
-
-                            section += 1; // Increment section
-                        }
-
-                        else // Problem if here
-                        {
-                            swLog.WriteLine(DateTime.Now);
-                            swLog.WriteLine("ERROR: Problem occurred while trying to click classes");
-                        }
-                    }
-
-                    catch (NoSuchElementException) // If here, no more classes were found
-                    {
-                        bMoreCourses = false; // Stop while loop
-                    }
-                }
-
-                String pageSource = driver.PageSource; // Read entire course DOM of the page
-                File.WriteAllText(courseName + "_DOM.txt", pageSource); // Write current course DOM to text file based off course
-
-                swLog.WriteLine("\r\n\r\n" + DateTime.Now); // Write to log
-                swLog.WriteLine(courseName + " expanded " + section + " section(s) successfully.\r\n\r\n\r\n"); // Write number of expanded sections
-
-                driver.Navigate().Refresh(); // Refresh page and switch course
-                driver.SwitchTo().Frame("ptifrmtgtframe"); // Switch to content frame
-            }
-        }
-
-        [TestMethod]
-        public void subjParser()
-        {
-            driver.SwitchTo().Frame("ptifrmtgtframe"); // Switch to content frame
-            SelectElement subjectDdList = new SelectElement(driver.FindElementById("NR_SSS_SOC_NWRK_SUBJECT")); // Select drop down list
-
-            IList<IWebElement> subjectList = subjectDdList.Options; //Get list of IWeb elements
-            int numSubjects = subjectList.Count; // Number of subjects CSUN has
+            // Course
+            String courseHtml = "";
+            String courseID = "SOC_DETAIL$"; // Prefix ID for courses
+            int numCourses = 0;
 
             // Course section 
             String courseSecHtml = "";
             String courseSecID = "NR_SSS_SOC_NWRK_DESCR15$";
-            int numSections = 0;
 
             // Course number
             String courseNumHtml = "";
@@ -207,6 +155,8 @@ namespace DbPopulator
             // Course times
             String courseTimeHtml = "";
             String courseTime = "";
+            String courseStartTime = "";
+            String courseEndTime = "";
             String courseTimeID = "win0divNR_SSS_SOC_NSEC_DESCR25_2$";
 
             // Course instructor
@@ -223,85 +173,116 @@ namespace DbPopulator
             String subjName = "";
             String subjTitle = "";
 
-            StreamWriter swParse = new StreamWriter("log_parse.txt");
             for (int subjectIndex = 1; subjectIndex < numSubjects; subjectIndex++)
             {
                 subjectDdList = new SelectElement(driver.FindElementById("NR_SSS_SOC_NWRK_SUBJECT")); // Select drop down list
-                subjectDdList.SelectByIndex(subjectIndex); // Select major
+                subjectDdList.SelectByIndex(subjectIndex); // Select subject
 
-                if (isWheelGone()) // If wheel is gone 
+                subjName = driver.FindElementById("NR_SSS_SOC_NWRK_SUBJECT").GetAttribute("value"); // Get the value of the selected item in the drop down list
+
+                fixIllegalChar(ref subjName); // Fix any illegal characters
+
+                Thread.Sleep(1 * SECOND); // Wait to click the search button
+                driver.FindElementById("NR_SSS_SOC_NWRK_BASIC_SEARCH_PB").Click(); // Click the search button
+                Thread.Sleep(1 * SECOND); // Wait for number of sections
+
+                courseHtml = driver.FindElementByClassName("PSGRIDCOUNTER").Text; // String representation of number of sections offered in that course
+                numCourses = Int32.Parse(courseHtml.Substring(courseHtml.LastIndexOf(' ') + 1)); // Get number of courses under specified subject
+
+                subjTitle = new SelectElement(driver.FindElementById("NR_SSS_SOC_NWRK_SUBJECT")).SelectedOption.Text;
+
+                using (var wCsv = new StreamWriter(subjName + "_PARSE.csv"))
                 {
-                    subjName = driver.FindElementById("NR_SSS_SOC_NWRK_SUBJECT").GetAttribute("value"); // Get the attribute  of drop down list
+                    wCsv.WriteLine(String.Format("{0},{1},{2},{3},{4},{5},{6}", "Course", "Number", "Location", "Days", "Start Time", "End Time", "Instructor")); // headers
+                    wCsv.Flush();
 
-                    subjectDdList = new SelectElement(driver.FindElementById("NR_SSS_SOC_NWRK_SUBJECT")); // Select drop down list
-                    subjTitle = subjectDdList.SelectedOption.Text;
-
-                    fixIllegalChar(ref subjName); // Remove illegal modifiers
-
-                    HtmlDocument doc = new HtmlDocument(); // Create html document 
-                    String filePath = @"F:\Projects\aspNet\DbPopulator\bin\Debug\" + subjName + "_DOM.txt"; // File path to location of DOM file
-                    doc.Load(filePath); // Load path to course DOM
-
-                    String courseHtml = getInnerText(doc, "PSCENTER"); // Get string of offered courses within that subject
-                    int numCourses = Int32.Parse(courseHtml.Substring(courseHtml.LastIndexOf(' ') + 1)); // Get number of courses under specified subject
-
-                    StreamWriter sw = new StreamWriter(subjName + "_parsed.txt"); // Create new stream writer to store parsed information
-                    swParse.Write(DateTime.Now); // parse log subject start
-                    swParse.WriteLine("   " + subjTitle + ": " + numCourses + " course(s)"); // parse log subject name
+                    swParseLog.Write(DateTime.Now); // parse log subject start
+                    swParseLog.WriteLine("   " + subjTitle + ": " + numCourses + " course(s)"); // parse log subject name
 
                     for (int courseIndex = 0, courseRow = 0; courseIndex < numCourses; courseIndex++) // For the number of courses under the specified subject
                     {
-                        courseDescrHtml = getInnerText(doc, courseDescrID + courseIndex); // Get the current course description 
-                        courseTitle = courseDescrHtml.Substring(0, courseDescrHtml.IndexOf('(')).Trim();
-                        courseDescr = courseDescrHtml.Substring(0, courseDescrHtml.IndexOf('-')).Trim(); // Trim the description to show only the class and section
-
-                        courseSecHtml = getInnerText(doc, courseSecID + courseIndex); // Get the string of offered sections of that course
-                        numSections = Int32.Parse(Regex.Match(courseSecHtml, @"\d+").Value); // Convert that string to a number
-
-
-                        swParse.WriteLine(courseTitle + ": " + numSections + " section(s)");
-                        //sw.WriteLine(courseDescrHtml + ": " + numSections + " section(s)");
-                        for (int sectionIndex = 0; sectionIndex < numSections; sectionIndex++, courseRow++) // For the number of sections within the class
+                        if (isWheelGone()) // If the processing wheel is gone, click!
                         {
-                            courseNumHtml = getInnerText(doc, courseNumID + courseRow); // Get the course number 
-                            courseNum = removeNewline(courseNumHtml);
+                            driver.FindElementById(courseID + courseIndex).Click(); // Expand every course through click command
 
-                            courseLocHtml = getInnerText(doc, courseLocID + courseRow); // Get the location of the course
-                            courseLoc = removeNewline(courseLocHtml);
+                            if (isWheelGone())
+                            {
+                                courseSecHtml = driver.FindElementById(courseSecID + courseIndex).Text; // Get the string of offered sections of that course
+                                numSections = Int32.Parse(Regex.Match(courseSecHtml, @"\d+").Value); // Convert that string to a number
 
-                            courseDayHtml = getInnerText(doc, courseDayID + courseRow); // Get the instruction days the class is taught
-                            courseDay = removeNewline(courseDayHtml);
-                            if (courseDay.Equals("&nbsp;")) // If day is empty, the string is TBA
-                                courseDay = "TBA";
+                                courseDescrHtml = driver.FindElementById(courseDescrID + courseIndex).Text;
+                                courseTitle = courseDescrHtml.Substring(0, courseDescrHtml.IndexOf('(')).Trim();
+                                courseDescr = courseDescrHtml.Substring(0, courseDescrHtml.IndexOf('-')).Trim(); // Trim the description to show only the class and section
 
-                            courseTimeHtml = getInnerText(doc, courseTimeID + courseRow); // Get the time the class is taught
-                            courseTime = removeNewline(courseTimeHtml);
+                                swParseLog.WriteLine(courseTitle + ": " + numSections + " section(s)");
 
-                            courseInstrHtml = getInnerText(doc, courseInstrID + courseRow); // Get the name of the instructor who is teaching the class
-                            courseInstr = removeNewline(courseInstrHtml);
+                                for (int sectionIndex = 0; sectionIndex < numSections; sectionIndex++, courseRow++) // For the number of sections within the class
+                                {
+                                    courseNumHtml = driver.FindElementById(courseNumID + courseRow).Text; // Get the course number 
+                                    courseNum = removeNewline(courseNumHtml);
 
-                            // write to the stream writer with information above
-                            sw.WriteLine(courseDescr);
-                            sw.WriteLine(courseNum);
-                            sw.WriteLine(courseLoc);
-                            sw.WriteLine(courseDay);
-                            sw.WriteLine(courseTime);
-                            sw.WriteLine(courseInstr + "\r\n");
-                            swParse.WriteLine("Section " + (sectionIndex + 1) + " of " + courseDescr + ": " + courseNum + " parsed successfully."); // parse log
+                                    courseLocHtml = driver.FindElementById(courseLocID + courseRow).Text; // Get the location of the course
+                                    courseLoc = removeNewline(courseLocHtml);
+
+                                    courseDayHtml = driver.FindElementById(courseDayID + courseRow).Text; // Get the instruction days the class is taught
+                                    courseDay = removeNewline(courseDayHtml);
+                                    if (courseDay.Equals("&nbsp;")) // If day is empty, the string is TBA
+                                        courseDay = "TBA";
+
+                                    courseTimeHtml = driver.FindElementById(courseTimeID + courseRow).Text; // Get the time the class is taught
+                                    courseTime = removeNewline(courseTimeHtml);
+
+                                    if (courseTime.Contains("-")) // If the class has a time
+                                    {
+                                        courseStartTime = courseTime.Substring(0, courseTime.IndexOf('-'));
+                                        courseEndTime = courseTime.Substring(courseTime.LastIndexOf('-') + 1);
+                                    }
+
+                                    courseInstrHtml = driver.FindElementById(courseInstrID + courseRow).Text; // Get the name of the instructor who is teaching the class
+                                    courseInstr = removeNewline(courseInstrHtml);
+
+                                    // Fix for .csv format
+                                    fixCsvChar(ref courseDescr);
+                                    fixCsvChar(ref courseNum);
+                                    fixCsvChar(ref courseLoc);
+                                    fixCsvChar(ref courseDay);
+                                    fixCsvChar(ref courseStartTime);
+                                    fixCsvChar(ref courseEndTime);
+                                    fixCsvChar(ref courseInstr);
+
+                                    // write to the stream writer with information above
+                                    var row = String.Format("{0},{1},{2},{3},{4},{5},{6}",
+                                        courseDescr, courseNum, courseLoc, courseDay, courseStartTime, courseEndTime, courseInstr);
+
+                                    wCsv.WriteLine(row);
+                                    wCsv.Flush();
+                                    swParseLog.WriteLine("Section " + (sectionIndex + 1) + " of " + numSections + ": " + courseNum + " parsed successfully."); // parse log
+                                }
+                                swParseLog.WriteLine();
+                            }
+
+                            else // Problem if here
+                            {
+                                swParseLog.WriteLine(DateTime.Now);
+                                swParseLog.WriteLine("ERROR IN " + subjTitle + ": Problem occurred while trying to parse section.");
+                            }
                         }
-                        swParse.WriteLine();
-                    }
-                    swParse.WriteLine("\r\n\r\n");
-                    sw.Close(); // Close stream writer
-                }
 
-                else // Problem if here
-                {
-                    swParse.WriteLine(DateTime.Now);
-                    swParse.WriteLine("ERROR: Problem occurred while trying to parse the DOM.");
+                        else // Problem if here
+                        {
+                            swLog.WriteLine(DateTime.Now);
+                            swLog.WriteLine("ERROR IN " + subjTitle + ": Problem occurred while trying to parse section.");
+                        }
+                    }
                 }
+                swParseLog.WriteLine("\r\n\r\n");
+
+                swLog.Write(DateTime.Now);
+                swLog.WriteLine("   " + "Finished parsing subject: " + subjTitle + "\r\n\r\n");
+
+                driver.Navigate().Refresh(); // Refresh page and switch course
+                driver.SwitchTo().Frame("ptifrmtgtframe"); // Switch to content frame
             }
-            swParse.Close();
         }
     }
 }
