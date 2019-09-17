@@ -182,14 +182,19 @@ namespace DbPopulator
 
                 fixIllegalChar(ref subjName); // Fix any illegal characters
 
-                Thread.Sleep(1 * SECOND); // Wait to click the search button
-                driver.FindElementById("NR_SSS_SOC_NWRK_BASIC_SEARCH_PB").Click(); // Click the search button
-                Thread.Sleep(1 * SECOND); // Wait for number of sections
 
-                courseHtml = driver.FindElementByClassName("PSGRIDCOUNTER").Text; // String representation of number of sections offered in that course
-                numCourses = Int32.Parse(courseHtml.Substring(courseHtml.LastIndexOf(' ') + 1)); // Get number of courses under specified subject
+                if (isWheelGone())
+                {
+                    driver.FindElementById("NR_SSS_SOC_NWRK_BASIC_SEARCH_PB").Click(); // Click the search button
+                }
 
-                subjTitle = new SelectElement(driver.FindElementById("NR_SSS_SOC_NWRK_SUBJECT")).SelectedOption.Text;
+                if (isWheelGone())
+                {
+                    courseHtml = driver.FindElementByClassName("PSGRIDCOUNTER").Text; // String representation of number of sections offered in that course
+                    numCourses = Int32.Parse(courseHtml.Substring(courseHtml.LastIndexOf(' ') + 1)); // Get number of courses under specified subject
+
+                    subjTitle = new SelectElement(driver.FindElementById("NR_SSS_SOC_NWRK_SUBJECT")).SelectedOption.Text;
+                }
 
                 using (var wCsv = new StreamWriter(subjName + "_PARSE.csv"))
                 {
