@@ -1,0 +1,288 @@
+9/20/2019 1:00:52 AM   Finished creating table for subject: A E - Aerospace Engineering.
+
+
+9/20/2019 1:00:55 AM   Finished creating table for subject: A M - Applied Mechanics.
+
+
+9/20/2019 1:01:12 AM   Finished creating table for subject: A/R - Admissions and Records.
+
+
+9/20/2019 1:01:27 AM   Finished creating table for subject: AAS - Asian American Studies.
+
+
+9/20/2019 1:01:44 AM   Finished creating table for subject: ACCT - Accounting.
+
+
+9/20/2019 1:02:06 AM   Finished creating table for subject: AFRS - Africana Studies.
+
+
+9/20/2019 1:02:08 AM   Finished creating table for subject: AIS - American Indian Studies Program.
+
+
+9/20/2019 1:02:29 AM   Finished creating table for subject: ANTH - Anthropology.
+
+
+9/20/2019 1:02:31 AM   Finished creating table for subject: ARAB - Arabic.
+
+
+9/20/2019 1:02:34 AM   Finished creating table for subject: ARMN - Armenian.
+
+
+9/20/2019 1:05:00 AM   Finished creating table for subject: ART - Arts.
+
+
+9/20/2019 1:05:08 AM   Finished creating table for subject: ASTR - Astronomy.
+
+
+9/20/2019 1:05:16 AM   Finished creating table for subject: ATHL - Intercollegiate Athletics.
+
+
+9/20/2019 1:07:17 AM   Finished creating table for subject: BIOL - Biology.
+
+
+9/20/2019 1:07:29 AM   Finished creating table for subject: BLAW - Business Law.
+
+
+9/20/2019 1:07:41 AM   Finished creating table for subject: BUS - Business.
+
+
+9/20/2019 1:08:01 AM   Finished creating table for subject: C E - Civil Engineering.
+
+
+9/20/2019 1:08:15 AM   Finished creating table for subject: CADV - Child and Adolescent Development.
+
+
+9/20/2019 1:08:26 AM   Finished creating table for subject: CAS - Central American Studies.
+
+
+9/20/2019 1:08:28 AM   Finished creating table for subject: CCE - Civic and Community Engagement.
+
+
+9/20/2019 1:09:03 AM   Finished creating table for subject: CD - Communication Disorders and Sciences.
+
+
+9/20/2019 1:09:05 AM   Finished creating table for subject: CECS - Engineering and Computer Science.
+
+
+9/20/2019 1:10:04 AM   Finished creating table for subject: CH S - Chicana and Chicano Studies.
+
+
+9/20/2019 1:10:56 AM   Finished creating table for subject: CHEM - Chemistry.
+
+
+9/20/2019 1:10:58 AM   Finished creating table for subject: CHIN - Chinese.
+
+
+9/20/2019 1:11:07 AM   Finished creating table for subject: CIT - Computer Information Technology.
+
+
+9/20/2019 1:11:33 AM   Finished creating table for subject: CJS - Criminology & Justice Studies.
+
+
+9/20/2019 1:11:36 AM   Finished creating table for subject: CLAS - Classics.
+
+
+9/20/2019 1:11:46 AM   Finished creating table for subject: CM - Construction Management.
+
+
+9/20/2019 1:12:32 AM   Finished creating table for subject: COMP - Computer Science.
+
+
+9/20/2019 1:14:07 AM   Finished creating table for subject: COMS - Communication Studies.
+
+
+9/20/2019 1:15:05 AM   Finished creating table for subject: CTVA - Cinema and Television Arts.
+
+
+9/20/2019 1:15:28 AM   Finished creating table for subject: DEAF - Deaf Studies.
+
+
+9/20/2019 1:15:47 AM   Finished creating table for subject: E ED - Elementary Education.
+
+
+9/20/2019 1:16:37 AM   Finished creating table for subject: ECE - Electrical and Computer Engineering.
+
+
+9/20/2019 1:16:52 AM   Finished creating table for subject: ECON - Economics.
+
+
+9/20/2019 1:16:55 AM   Finished creating table for subject: EDUC - Education.
+
+
+9/20/2019 1:17:06 AM   Finished creating table for subject: ELPS - Educational Leadership and Policy Studies.
+
+
+9/20/2019 1:19:09 AM   Finished creating table for subject: ENGL - English.
+
+
+9/20/2019 1:19:26 AM   Finished creating table for subject: EOH - Environmental and Occupational Health.
+
+
+9/20/2019 1:20:10 AM   Finished creating table for subject: EPC - Educational Psychology.
+
+
+9/20/2019 1:21:34 AM   Finished creating table for subject: FCS - Family and Consumer Sciences.
+
+
+9/20/2019 1:21:51 AM   Finished creating table for subject: FIN - Finance, Financial Planning, and Insurance.
+
+
+9/20/2019 1:21:54 AM   Finished creating table for subject: FLIT - Literature in Translation and Cultures.
+
+
+9/20/2019 1:21:56 AM   Finished creating table for subject: FREN - French.
+
+
+9/20/2019 1:21:59 AM   Finished creating table for subject: GBUS - Graduate Business.
+
+
+9/20/2019 1:22:39 AM   Finished creating table for subject: GEOG - Geography and Environ Studies.
+
+
+9/20/2019 1:23:07 AM   Finished creating table for subject: GEOL - Geological Sciences.
+
+
+9/20/2019 1:23:17 AM   Finished creating table for subject: GWS - Gender and Women's Studies.
+
+
+9/20/2019 1:23:19 AM   Finished creating table for subject: HEBR - Hebrew.
+
+
+9/20/2019 1:23:21 AM   Finished creating table for subject: HHD - Health and Human Development.
+
+
+9/20/2019 1:23:51 AM   Finished creating table for subject: HIST - History.
+
+
+9/20/2019 1:25:22 AM   Finished creating table for subject: HSCI - Health Sciences.
+
+
+9/20/2019 1:25:27 AM   Finished creating table for subject: HUM - Humanities Program.
+
+
+9/20/2019 1:25:37 AM   Finished creating table for subject: IS - Information Systems.
+
+
+9/20/2019 1:25:40 AM   Finished creating table for subject: ITAL - Italian.
+
+
+9/20/2019 1:25:45 AM   Finished creating table for subject: J S - Jewish Studies Program.
+
+
+9/20/2019 1:25:48 AM   Finished creating table for subject: JAPN - Japanese.
+
+
+9/20/2019 1:26:15 AM   Finished creating table for subject: JOUR - Journalism.
+
+
+9/20/2019 1:29:39 AM   Finished creating table for subject: KIN - Kinesiology.
+
+
+9/20/2019 1:29:43 AM   Finished creating table for subject: KOR - Korean.
+
+
+9/20/2019 1:29:57 AM   Finished creating table for subject: LING - Linguistics/TESL.
+
+
+9/20/2019 1:30:02 AM   Finished creating table for subject: LR S - Liberal Studies.
+
+
+9/20/2019 1:30:42 AM   Finished creating table for subject: M E - Mechanical Engineering.
+
+
+9/20/2019 1:33:20 AM   Finished creating table for subject: MATH - Mathematics.
+
+
+9/20/2019 1:33:25 AM   Finished creating table for subject: MCOM - Mass Communication.
+
+
+9/20/2019 1:33:43 AM   Finished creating table for subject: MGT - Management.
+
+
+9/20/2019 1:33:59 AM   Finished creating table for subject: MKT - Marketing.
+
+
+9/20/2019 1:34:24 AM   Finished creating table for subject: MSE - Manufacturing Systems Engineering and Manage.
+
+
+9/20/2019 1:44:49 AM   Finished creating table for subject: MUS - Music.
+
+
+9/20/2019 1:44:54 AM   Finished creating table for subject: NURS - Nursing.
+
+
+9/20/2019 1:44:58 AM   Finished creating table for subject: PERS - Persian.
+
+
+9/20/2019 1:45:15 AM   Finished creating table for subject: PHIL - Philosophy.
+
+
+9/20/2019 1:45:17 AM   Finished creating table for subject: PHSC - Physical Science.
+
+
+9/20/2019 1:45:55 AM   Finished creating table for subject: PHYS - Physics.
+
+
+9/20/2019 1:46:29 AM   Finished creating table for subject: POLS - Political Science.
+
+
+9/20/2019 1:47:26 AM   Finished creating table for subject: PSY - Psychology.
+
+
+9/20/2019 1:47:43 AM   Finished creating table for subject: PT - Physical Therapy.
+
+
+9/20/2019 1:47:48 AM   Finished creating table for subject: QS - Queer Studies.
+
+
+9/20/2019 1:48:04 AM   Finished creating table for subject: R S - Religious Studies.
+
+
+9/20/2019 1:48:08 AM   Finished creating table for subject: RE - Real Estate.
+
+
+9/20/2019 1:48:36 AM   Finished creating table for subject: RTM - Recreation and Tourism Management.
+
+
+9/20/2019 1:48:39 AM   Finished creating table for subject: RUSS - Russian.
+
+
+9/20/2019 1:49:02 AM   Finished creating table for subject: S ED - Secondary Education.
+
+
+9/20/2019 1:49:05 AM   Finished creating table for subject: SBS - Social and Behavioral Sciences.
+
+
+9/20/2019 1:49:08 AM   Finished creating table for subject: SCI - Science.
+
+
+9/20/2019 1:49:11 AM   Finished creating table for subject: SCM - Supply Chain Management.
+
+
+9/20/2019 1:49:45 AM   Finished creating table for subject: SOC - Sociology.
+
+
+9/20/2019 1:49:55 AM   Finished creating table for subject: SOM - Systems and Operation  Management.
+
+
+9/20/2019 1:50:07 AM   Finished creating table for subject: SPAN - Spanish.
+
+
+9/20/2019 1:50:51 AM   Finished creating table for subject: SPED - Special Education.
+
+
+9/20/2019 1:50:55 AM   Finished creating table for subject: SUST - Sustainability.
+
+
+9/20/2019 1:51:14 AM   Finished creating table for subject: SWRK - Social Work.
+
+
+9/20/2019 1:51:47 AM   Finished creating table for subject: TH - Theatre.
+
+
+9/20/2019 1:52:18 AM   Finished creating table for subject: UNIV - University.
+
+
+9/20/2019 1:52:32 AM   Finished creating table for subject: URBS - Urban Studies and Planning.
+
+
