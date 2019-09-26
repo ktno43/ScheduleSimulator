@@ -128,7 +128,7 @@ namespace CourseScraper
 
             foreach (char c in invalidChars)
             {
-                refStr = refStr.Replace(c.ToString(), ""); // Remove invalid characters
+                refStr = refStr.Replace(c.ToString(), String.Empty); // Remove invalid characters
             }
         }
 
@@ -157,32 +157,21 @@ namespace CourseScraper
 
         private static String[] fixParse(String row) // Pass in a String row
         {
-            String[] retString = new string[7]; // 7 colomns
-            String[] rowSplit = row.Split(','); // Split at every comma (.CSV FILE) 
+            String[] retString = new string[8]; // 7 columns
 
-            if (rowSplit.Length == 8) // If their is an instructor for the class
-            {
-                retString[0] = rowSplit[0]; // Course section
-                retString[1] = rowSplit[1]; // Course Number
-                retString[2] = rowSplit[2]; // Course location
-                retString[3] = rowSplit[3]; // Course days
-                retString[4] = rowSplit[4]; // Course start time
-                retString[5] = rowSplit[5]; // Course end time
-                retString[6] = (rowSplit[6] + "," + rowSplit[7]).Replace("\"", string.Empty); // Course instructor
-                // Remove double quotes and concatenate first & last name together
-            }
 
-            else // Else no instructor (STAFF)
-            {
-                retString[0] = rowSplit[0]; // Course section
-                retString[1] = rowSplit[1]; // Course number
-                retString[2] = rowSplit[2]; // Course location
-                retString[3] = rowSplit[3]; // Course days
-                retString[4] = rowSplit[4]; // course start time
-                retString[5] = rowSplit[5]; // Course end time
-                retString[6] = rowSplit[6]; // Course instructor
-            }
+            String[] rowSplit = row.Split('|'); // Split at every pipe (.CSV FILE) 
 
+
+            retString[0] = rowSplit[0]; // Course section
+            retString[1] = rowSplit[1]; // Course name
+            retString[2] = rowSplit[2]; // Course Number
+            retString[3] = rowSplit[3]; // Course location
+            retString[4] = rowSplit[4]; // Course days
+            retString[5] = rowSplit[5]; // Course start time
+            retString[6] = rowSplit[6]; // Course end time
+            retString[7] = rowSplit[7].Replace("\"", String.Empty); // Course instructor
+                                                                    // Remove double quotes and concatenate first & last name together
             return retString; // Return string array
         }
 
@@ -210,7 +199,15 @@ namespace CourseScraper
 
         private static String getInnerText(HtmlDocument doc, String id)
         {
-            return System.Net.WebUtility.HtmlDecode(doc.GetElementbyId(id).InnerText);
+            if (doc.GetElementbyId(id).InnerText.Equals("&nbsp;"))
+            {
+                return "";
+            }
+
+            else
+            {
+                return System.Net.WebUtility.HtmlDecode(doc.GetElementbyId(id).InnerText);
+            }
         }
 
         private static void writeSubj(IList<IWebElement> subjList)
@@ -235,8 +232,8 @@ namespace CourseScraper
             insertOrclSubjTbl(Properties.MySettings.Default.CONNECTION_STRING, Path.Combine(Properties.MySettings.Default.FILE_DIRECTORY, "CourseList.txt"), Properties.MySettings.Default.TABLE_COURSE);
 
             int numSubjects = subjectList.Count; // Number of subjects CSUN has
-            String subjWriteName = ""; // Subject file name
-            String subjTitle = ""; // Subject title
+            String subjWriteName = String.Empty; // Subject file name
+            String subjTitle = String.Empty; // Subject title
 
             String tblName = Properties.MySettings.Default.TBL_PREFIX; // tbl prefix
 
@@ -244,9 +241,9 @@ namespace CourseScraper
 
             Boolean bMoreCourses = true;
             int courseIndex = 0;
-            String clickElapsed = "";
+            String clickElapsed = String.Empty;
 
-            // *SUBJECT HERE*
+            // *FIX SUBJECT HERE*
             for (int subjectIndex = 1; subjectIndex < numSubjects; subjectIndex++)
             {
                 Stopwatch swSubj = new Stopwatch();
@@ -260,7 +257,7 @@ namespace CourseScraper
 
                 subjWriteName = driver.FindElementById(Properties.MySettings.Default.SUBJECT_DDL).GetAttribute("value"); // Get the value of the selected item in the drop down list
                 fixIllegalChar(ref subjWriteName); // Fix any illegal characters
-                subjWriteName = Regex.Replace(subjWriteName, @"\s+", "");
+                subjWriteName = Regex.Replace(subjWriteName, @"\s+", String.Empty);
 
                 if (isWheelGone())
                 {
@@ -371,47 +368,47 @@ namespace CourseScraper
         private static String parseDataSelenium(String subjWriteName, String subjTitle)
         {
             // Course
-            String courseHtml = "";
+            String courseHtml = String.Empty;
             String courseClassID = Properties.MySettings.Default.COURSE_OFFERED_ID;
             int numCourses = 0;
 
             // Course section 
-            String courseSecHtml = "";
-            String courseSecID = Properties.MySettings.Default.SECTION_ID;
+            String secHtml = String.Empty;
+            String secID = Properties.MySettings.Default.SECTION_ID;
             int numSections = 0; // Number of sections
 
             // Course number
-            String courseNumHtml = "";
-            String courseNum = "";
+            String courseNumHtml = String.Empty;
+            String courseNum = String.Empty;
             String courseNumID = Properties.MySettings.Default.COURSE_NUM_ID;
 
             // Course location
-            String courseLocHtml = "";
-            String courseLoc = "";
-            String courseLocID = Properties.MySettings.Default.COURSE_LOC_ID;
+            String locHtml = String.Empty;
+            String loc = String.Empty;
+            String locID = Properties.MySettings.Default.COURSE_LOC_ID;
 
             // Course days
-            String courseDayHtml = "";
-            string courseDay = "";
-            String courseDayID = Properties.MySettings.Default.COURSE_DAY_ID;
+            String dayHtml = String.Empty;
+            string day = String.Empty;
+            String dayID = Properties.MySettings.Default.COURSE_DAY_ID;
 
             // Course times
-            String courseTimeHtml = "";
-            String courseTime = "";
-            String courseStartTime = "";
-            String courseEndTime = "";
+            String timeHtml = String.Empty;
+            String courseTime = String.Empty;
+            String courseStartTime = String.Empty;
+            String courseEndTime = String.Empty;
             String courseTimeID = Properties.MySettings.Default.COURSE_TIME_ID;
 
             // Course instructor
-            String courseInstrHtml = "";
-            String courseInstr = "";
-            String courseInstrID = Properties.MySettings.Default.COURSE_INSTR_ID;
+            String instrHtml = String.Empty;
+            String instr = String.Empty;
+            String instrID = Properties.MySettings.Default.COURSE_INSTR_ID;
 
             // Course description
-            String courseDescrHtml = "";
-            String courseDescr = "";
+            String courseDescrHtml = String.Empty;
+            String courseDescr = String.Empty;
             String courseDescrID = Properties.MySettings.Default.COURSE_DESCR_ID;
-            String courseTitle = "";
+            String courseName = String.Empty;
 
             String fileName = subjWriteName + "_PARSE.csv";
             String filePath = null;
@@ -428,33 +425,33 @@ namespace CourseScraper
 
                     for (int courseIndex = 0, courseRow = 0; courseIndex < numCourses; courseIndex++) // For the number of courses under the specified subject
                     {
-                        courseSecHtml = driver.FindElementById(courseSecID + courseIndex).Text; // Get the string of offered sections of that course
-                        numSections = Int32.Parse(Regex.Match(courseSecHtml, @"\d+").Value); // Convert that string to a number
+                        secHtml = driver.FindElementById(secID + courseIndex).Text; // Get the string of offered sections of that course
+                        numSections = Int32.Parse(Regex.Match(secHtml, @"\d+").Value); // Convert that string to a number
 
                         courseDescrHtml = driver.FindElementById(courseDescrID + courseIndex).Text;
-                        courseTitle = courseDescrHtml.Substring(0, courseDescrHtml.IndexOf('(')).Trim();
+                        courseName = courseDescrHtml.Substring(0, courseDescrHtml.IndexOf('(')).Trim();
                         courseDescr = courseDescrHtml.Substring(0, courseDescrHtml.IndexOf('-')).Trim(); // Trim the description to show only the class and section
 
-                        swParseLog.WriteLine("Course " + (courseIndex + 1) + " of " + numCourses + ": " + courseTitle + "- " + numSections + " section(s)");
-                        Console.WriteLine(" Course " + (courseIndex + 1) + " of " + numCourses + ": " + courseTitle + "- " + numSections + " section(s)");
+                        swParseLog.WriteLine("Course " + (courseIndex + 1) + " of " + numCourses + ": " + courseName + "- " + numSections + " section(s)");
+                        Console.WriteLine(" Course " + (courseIndex + 1) + " of " + numCourses + ": " + courseName + "- " + numSections + " section(s)");
 
                         for (int sectionIndex = 0; sectionIndex < numSections; sectionIndex++, courseRow++) // For the number of sections within the class
                         {
                             courseNumHtml = driver.FindElementById(courseNumID + courseRow).Text; // Get the course number 
                             courseNum = removeNewline(courseNumHtml);
 
-                            courseLocHtml = driver.FindElementById(courseLocID + courseRow).Text; // Get the location of the course
-                            courseLoc = removeNewline(courseLocHtml);
+                            locHtml = driver.FindElementById(locID + courseRow).Text; // Get the location of the course
+                            loc = removeNewline(locHtml);
 
-                            courseDayHtml = driver.FindElementById(courseDayID + courseRow).Text; // Get the instruction days the class is taught
-                            courseDay = removeNewline(courseDayHtml);
-                            if (courseDay.Equals(" "))
+                            dayHtml = driver.FindElementById(dayID + courseRow).Text; // Get the instruction days the class is taught
+                            day = removeNewline(dayHtml);
+                            if (day.Equals(" "))
                             {// If day is empty, the string is TBA
-                                courseDay = "TBA";
+                                day = "TBA";
                             }
 
-                            courseTimeHtml = driver.FindElementById(courseTimeID + courseRow).Text; // Get the time the class is taught
-                            courseTime = removeNewline(courseTimeHtml);
+                            timeHtml = driver.FindElementById(courseTimeID + courseRow).Text; // Get the time the class is taught
+                            courseTime = removeNewline(timeHtml);
 
                             if (courseTime.Contains("-")) // If the class has a time
                             {
@@ -468,21 +465,21 @@ namespace CourseScraper
                                 courseEndTime = "TBA";
                             }
 
-                            courseInstrHtml = driver.FindElementById(courseInstrID + courseRow).Text; // Get the name of the instructor who is teaching the class
-                            courseInstr = removeNewline(courseInstrHtml);
+                            instrHtml = driver.FindElementById(instrID + courseRow).Text; // Get the name of the instructor who is teaching the class
+                            instr = removeNewline(instrHtml);
 
                             // Fix for .csv format
                             fixCsvChar(ref courseDescr);
                             fixCsvChar(ref courseNum);
-                            fixCsvChar(ref courseLoc);
-                            fixCsvChar(ref courseDay);
+                            fixCsvChar(ref loc);
+                            fixCsvChar(ref day);
                             fixCsvChar(ref courseStartTime);
                             fixCsvChar(ref courseEndTime);
-                            fixCsvChar(ref courseInstr);
+                            fixCsvChar(ref instr);
 
                             // write to the stream writer with information above
                             var row = String.Format("{0},{1},{2},{3},{4},{5},{6}",
-                                courseDescr, courseNum, courseLoc, courseDay, courseStartTime, courseEndTime, courseInstr);
+                                courseDescr, courseNum, loc, day, courseStartTime, courseEndTime, instr);
 
                             wCsv.WriteLine(row);
                             wCsv.Flush();
@@ -515,48 +512,49 @@ namespace CourseScraper
 
         private static String parseDataAgility(String subjWriteName, String subjTitle)
         {
-            // Course
-            String courseOfferHtml = "";
-            String courseOfferID = Properties.MySettings.Default.COURSE_OFFERED_ID;
+            // Courses offered
+            String offerHtml = String.Empty;
+            String offerID = Properties.MySettings.Default.COURSE_OFFERED_ID;
             int numCourses = 0;
 
             // Course section 
-            String courseSecHtml = "";
-            String courseSecID = Properties.MySettings.Default.SECTION_ID;
+            String secHtml = String.Empty;
+            String secID = Properties.MySettings.Default.SECTION_ID;
             int numSections = 0; // Number of sections
 
             // Course number
-            String courseNumHtml = "";
-            String courseNum = "";
+            String courseNumHtml = String.Empty;
+            String courseNum = String.Empty;
             String courseNumID = Properties.MySettings.Default.COURSE_NUM_ID;
 
             // Course location
-            String courseLocHtml = "";
-            String courseLoc = "";
-            String courseLocID = Properties.MySettings.Default.COURSE_LOC_ID;
+            String locHtml = String.Empty;
+            String loc = String.Empty;
+            String locID = Properties.MySettings.Default.COURSE_LOC_ID;
 
             // Course days
-            String courseDayHtml = "";
-            string courseDay = "";
-            String courseDayID = Properties.MySettings.Default.COURSE_DAY_ID;
+            String dayHtml = String.Empty;
+            String day = String.Empty;
+            String dayID = Properties.MySettings.Default.COURSE_DAY_ID;
 
             // Course times
-            String courseTimeHtml = "";
-            String courseTime = "";
-            String courseStartTime = "";
-            String courseEndTime = "";
+            String timeHtml = String.Empty;
+            String courseTime = String.Empty;
+            String courseStartTime = String.Empty;
+            String courseEndTime = String.Empty;
             String courseTimeID = Properties.MySettings.Default.COURSE_TIME_ID;
 
             // Course instructor
-            String courseInstrHtml = "";
-            String courseInstr = "";
-            String courseInstrID = Properties.MySettings.Default.COURSE_INSTR_ID;
+            String instrHtml = String.Empty;
+            String instr = String.Empty;
+            String instrID = Properties.MySettings.Default.COURSE_INSTR_ID;
 
-            // Course description
-            String courseDescrHtml = "";
-            String courseDescr = "";
-            String courseDescrID = Properties.MySettings.Default.COURSE_DESCR_ID;
-            String courseTitle = "";
+            // Course section description
+            String secDescrHtml = String.Empty;
+            String secDescr = String.Empty;
+            String secDescrID = Properties.MySettings.Default.COURSE_DESCR_ID;
+            String courseName = String.Empty;
+            String courseTitle = String.Empty;
 
             // Subject parsed csv file
             String fileName = subjWriteName + "_PARSE.csv";
@@ -573,22 +571,23 @@ namespace CourseScraper
             {
                 using (var wCsv = new StreamWriter(Path.Combine(gFileDir, fileName)))
                 {
-                    courseOfferHtml = htmlDoc.GetElementbyId(courseOfferID).InnerText; // String representation of number of sections offered in that course
-                    numCourses = Int32.Parse(courseOfferHtml.Substring(courseOfferHtml.LastIndexOf(' ') + 1)); // Get number of courses under specified subject
+                    offerHtml = htmlDoc.GetElementbyId(offerID).InnerText; // String representation of number of sections offered in that course
+                    numCourses = Int32.Parse(offerHtml.Substring(offerHtml.LastIndexOf(' ') + 1)); // Get number of courses under specified subject
 
                     logAndDisplay(swParseLog, "   " + subjTitle + ": " + numCourses + " course(s)"); // parse log subject name
 
                     for (int courseIndex = 0, courseRow = 0; courseIndex < numCourses; courseIndex++) // For the number of courses under the specified subject
                     {
-                        courseSecHtml = getInnerText(htmlDoc, courseSecID + courseIndex); // Get the string of offered sections of that course
-                        numSections = Int32.Parse(Regex.Match(courseSecHtml, @"\d+").Value); // Convert that string to a number
+                        secHtml = getInnerText(htmlDoc, secID + courseIndex); // Get the string of offered sections of that course
+                        numSections = Int32.Parse(Regex.Match(secHtml, @"\d+").Value); // Convert that string to a number
 
-                        courseDescrHtml = getInnerText(htmlDoc, courseDescrID + courseIndex);
-                        courseTitle = courseDescrHtml.Substring(0, courseDescrHtml.IndexOf('(')).Trim();
-                        courseDescr = courseDescrHtml.Substring(0, courseDescrHtml.IndexOf('-')).Trim(); // Trim the description to show only the class and section
+                        secDescrHtml = getInnerText(htmlDoc, secDescrID + courseIndex);
+                        courseName = secDescrHtml.Substring(0, secDescrHtml.IndexOf('(')).Trim();
+                        secDescr = courseName.Substring(0, courseName.IndexOf('-')).Trim(); // Trim the description to show only the class and section
+                        courseTitle = courseName.Substring(courseName.IndexOf('-') + 1).Trim();
 
-                        swParseLog.WriteLine("Course " + (courseIndex + 1) + " of " + numCourses + ": " + courseTitle + "- " + numSections + " section(s)");
-                        Console.WriteLine(" Course " + (courseIndex + 1) + " of " + numCourses + ": " + courseTitle + "- " + numSections + " section(s)");
+                        swParseLog.WriteLine("Course " + (courseIndex + 1) + " of " + numCourses + ": " + courseName + "- " + numSections + " section(s)");
+                        Console.WriteLine(" Course " + (courseIndex + 1) + " of " + numCourses + ": " + courseName + "- " + numSections + " section(s)");
 
                         for (int sectionIndex = 0; sectionIndex < numSections; sectionIndex++, courseRow++) // For the number of sections within the class
                         {
@@ -596,21 +595,21 @@ namespace CourseScraper
                             courseNum = removeNewline(courseNumHtml);
 
 
-                            courseLocHtml = getInnerText(htmlDoc, courseLocID + courseRow); // Get the location of the course
-                            courseLoc = removeNewline(courseLocHtml);
+                            locHtml = getInnerText(htmlDoc, locID + courseRow); // Get the location of the course
+                            loc = removeNewline(locHtml);
 
 
-                            courseDayHtml = getInnerText(htmlDoc, courseDayID + courseRow); // Get the instruction days the class is taught
-                            courseDay = removeNewline(courseDayHtml);
+                            dayHtml = getInnerText(htmlDoc, dayID + courseRow); // Get the instruction days the class is taught
+                            day = removeNewline(dayHtml);
 
-                            if (courseDay.Equals("&nbsp;") || courseDay.Equals(" ") || courseDay.Equals(String.Empty))
+                            if (day.Equals("&nbsp;") || String.IsNullOrEmpty(day.Trim()))
                             { // If day is empty, the string is TBA
-                                courseDay = "TBA";
+                                day = "TBA";
                             }
 
 
-                            courseTimeHtml = getInnerText(htmlDoc, courseTimeID + courseRow); // Get the time the class is taught
-                            courseTime = removeNewline(courseTimeHtml);
+                            timeHtml = getInnerText(htmlDoc, courseTimeID + courseRow); // Get the time the class is taught
+                            courseTime = removeNewline(timeHtml);
 
                             if (courseTime.Contains("-")) // If the class has a time
                             {
@@ -624,21 +623,22 @@ namespace CourseScraper
                                 courseEndTime = "TBA";
                             }
 
-                            courseInstrHtml = getInnerText(htmlDoc, courseInstrID + courseRow);  // Get the name of the instructor who is teaching the class
-                            courseInstr = removeNewline(courseInstrHtml);
+                            instrHtml = getInnerText(htmlDoc, instrID + courseRow);  // Get the name of the instructor who is teaching the class
+                            instr = removeNewline(instrHtml);
 
                             // Fix for .csv format
-                            fixCsvChar(ref courseDescr);
+                            fixCsvChar(ref secDescr);
+                            fixCsvChar(ref courseTitle);
                             fixCsvChar(ref courseNum);
-                            fixCsvChar(ref courseLoc);
-                            fixCsvChar(ref courseDay);
+                            fixCsvChar(ref loc);
+                            fixCsvChar(ref day);
                             fixCsvChar(ref courseStartTime);
                             fixCsvChar(ref courseEndTime);
-                            fixCsvChar(ref courseInstr);
+                            fixCsvChar(ref instr);
 
                             // write to the stream writer with information above
-                            var row = String.Format("{0},{1},{2},{3},{4},{5},{6}",
-                                courseDescr, courseNum, courseLoc, courseDay, courseStartTime, courseEndTime, courseInstr);
+                            var row = String.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}",
+                                secDescr, courseTitle, courseNum, loc, day, courseStartTime, courseEndTime, instr);
 
                             wCsv.WriteLine(row);
                             wCsv.Flush();
@@ -700,7 +700,7 @@ namespace CourseScraper
         {
             using (var reader = new StreamReader(filePath)) // Open file
             {
-                String row = "";
+                String row = String.Empty;
                 var commandDelText = "DELETE FROM " + tblName;
 
                 using (OracleConnection connection = new OracleConnection(connectionString)) // Establish oracle connection
@@ -764,6 +764,7 @@ namespace CourseScraper
                 "(" + tblName + "_ID NUMBER, " +
                 "CreationDate DATE DEFAULT (SYSDATE), " +
                 "SECTION VARCHAR2(30), " +
+                "NAME VARCHAR2(150), " +
                 "COURSENUM VARCHAR2(30), " +
                 "LOCATION VARCHAR2(30), " +
                 "DAY VARCHAR2(30), " +
@@ -796,7 +797,7 @@ namespace CourseScraper
         {
             using (var reader = new StreamReader(filePath)) // Open file
             {
-                String row = "";
+                String row = String.Empty;
                 var commandDelText = "DELETE FROM " + tblName;
 
                 using (OracleConnection connection = new OracleConnection(connectionString)) // Establish oracle connection
@@ -822,13 +823,14 @@ namespace CourseScraper
                     }
 
                     // Command to insert into oracle table
-                    var commandText = String.Format("INSERT INTO {0} (Section,CourseNum,Location,Day,StartTime,EndTime,Instructor) " +
-                        "VALUES(:Section,:CourseNum,:Location,:Day,:StartTime,:EndTime,:Instructor)", tblName);
+                    var commandText = String.Format("INSERT INTO {0} (Section,Name,CourseNum,Location,Day,StartTime,EndTime,Instructor) " +
+                        "VALUES(:Section,:Name,:CourseNum,:Location,:Day,:StartTime,:EndTime,:Instructor)", tblName);
 
                     using (OracleCommand cmdInsert = new OracleCommand(commandText, connection)) // Command to insert into oracle database
                     {
                         // Add parameters
                         cmdInsert.Parameters.Add(new OracleParameter(":Section", OracleDbType.Varchar2));
+                        cmdInsert.Parameters.Add(new OracleParameter(":Name", OracleDbType.Varchar2));
                         cmdInsert.Parameters.Add(new OracleParameter(":CourseNum", OracleDbType.Varchar2));
                         cmdInsert.Parameters.Add(new OracleParameter(":Location", OracleDbType.Varchar2));
                         cmdInsert.Parameters.Add(new OracleParameter(":Day", OracleDbType.Varchar2));
@@ -845,12 +847,13 @@ namespace CourseScraper
 
                             // Add values to the parameters
                             cmdInsert.Parameters[":Section"].Value = arrRow[0];
-                            cmdInsert.Parameters[":CourseNum"].Value = arrRow[1];
-                            cmdInsert.Parameters[":Location"].Value = arrRow[2];
-                            cmdInsert.Parameters[":Day"].Value = arrRow[3];
-                            cmdInsert.Parameters[":StartTime"].Value = arrRow[4];
-                            cmdInsert.Parameters[":EndTime"].Value = arrRow[5];
-                            cmdInsert.Parameters[":Instructor"].Value = arrRow[6];
+                            cmdInsert.Parameters[":Name"].Value = arrRow[1];
+                            cmdInsert.Parameters[":CourseNum"].Value = arrRow[2];
+                            cmdInsert.Parameters[":Location"].Value = arrRow[3];
+                            cmdInsert.Parameters[":Day"].Value = arrRow[4];
+                            cmdInsert.Parameters[":StartTime"].Value = arrRow[5];
+                            cmdInsert.Parameters[":EndTime"].Value = arrRow[6];
+                            cmdInsert.Parameters[":Instructor"].Value = arrRow[7];
 
                             cmdInsert.ExecuteNonQuery();
                         }
