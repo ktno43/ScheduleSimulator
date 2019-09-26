@@ -215,7 +215,7 @@ namespace CourseScraper
 
         private static void writeSubj(IList<IWebElement> subjList)
         {
-            using (var wSubj = new StreamWriter(Path.Combine(gFileDir, "SubjectList.txt")))
+            using (var wSubj = new StreamWriter(Path.Combine(gFileDir, "CourseList.txt")))
             {
                 foreach (IWebElement subj in subjList) // For each element in the subject list, write down the subject name
                 {
@@ -231,6 +231,8 @@ namespace CourseScraper
 
             IList<IWebElement> subjectList = subjectDdList.Options; //Get list of IWeb elements
             writeSubj(subjectList); // Write all subjects to a file
+
+            insertOrclSubjTbl(Properties.MySettings.Default.CONNECTION_STRING, Path.Combine(Properties.MySettings.Default.FILE_DIRECTORY, "CourseList.txt"), Properties.MySettings.Default.TABLE_COURSE);
 
             int numSubjects = subjectList.Count; // Number of subjects CSUN has
             String subjWriteName = ""; // Subject file name
@@ -667,10 +669,101 @@ namespace CourseScraper
             return filePath; // Return file path
         }
 
+        private static void createOrcleSubjTbl(OracleConnection connection, String tblName)
+        {
+            var commandCreateTbl = "CREATE TABLE " + tblName + " " +
+                "(" + tblName + "_ID NUMBER, " +
+                "CreationDate DATE DEFAULT (SYSDATE), " +
+                "COURSE VARCHAR2(100))";
+
+            using (OracleCommand command = new OracleCommand(commandCreateTbl, connection))
+            {
+                command.ExecuteNonQuery();
+            }
+
+            var commandCreateSeq = "CREATE OR REPLACE TRIGGER " + tblName + "_TRIG " +
+                "BEFORE INSERT ON " + tblName + " " +
+                "FOR EACH ROW " +
+                "BEGIN " +
+                "IF :new." + tblName + "_ID IS NULL THEN " +
+                "SELECT COURSE_SEQ.nextval INTO :new." + tblName + "_ID FROM DUAL; " +
+                "END IF; " +
+                "END; ";
+
+            using (OracleCommand cmdCreateSeq = new OracleCommand(commandCreateSeq, connection))
+            {
+                cmdCreateSeq.ExecuteNonQuery();
+            }
+        }
+
+        private static void insertOrclSubjTbl(String connectionString, String filePath, String tblName)
+        {
+            using (var reader = new StreamReader(filePath)) // Open file
+            {
+                String row = "";
+                var commandDelText = "DELETE FROM " + tblName;
+
+                using (OracleConnection connection = new OracleConnection(connectionString)) // Establish oracle connection
+                {
+                    using (OracleCommand cmdDelete = new OracleCommand(commandDelText, connection)) // Create command to delete table
+                    {
+                        cmdDelete.Connection.Open();
+
+                        try
+                        {
+                            cmdDelete.ExecuteNonQuery(); // Execute command to delete table
+                        }
+
+                        catch (OracleException e) // No table was found 
+                        {
+                            String error = e.Message.ToString();
+
+                            if (error.Contains("ORA-00942")) // No table found, so create a table
+                                createOrcleSubjTbl(connection, tblName);
+                        }
+
+                        cmdDelete.Connection.Close();
+                    }
+
+                    // Command to insert into oracle table
+                    var commandText = String.Format("INSERT INTO {0} (COURSE) " +
+                        "VALUES(:Course)", tblName);
+
+                    using (OracleCommand cmdInsert = new OracleCommand(commandText, connection)) // Command to insert into oracle database
+                    {
+                        // Add parameters
+                        cmdInsert.Parameters.Add(new OracleParameter(":Course", OracleDbType.Varchar2));
+
+                        cmdInsert.Connection.Open();
+
+                        // Add values to each parameters for each row in the file
+                        while ((row = reader.ReadLine()) != null)
+                        {
+
+
+                            if (String.IsNullOrEmpty(row.Trim()))
+                            {
+                                continue;
+                            }
+
+                            // Add values to the parameters
+                            cmdInsert.Parameters[":Course"].Value = row;
+
+                            cmdInsert.ExecuteNonQuery();
+                        }
+
+                        cmdInsert.Connection.Close();
+                    }
+                }
+            }
+        }
+
         private static void createOrclTbl(OracleConnection connection, String tblName) // Create table in oracle
         {
-            var commandCreateTbl = "CREATE TABLE " + tblName +
-                " (SECTION VARCHAR2(30), " +
+            var commandCreateTbl = "CREATE TABLE " + tblName + " " +
+                "(" + tblName + "_ID NUMBER, " +
+                "CreationDate DATE DEFAULT (SYSDATE), " +
+                "SECTION VARCHAR2(30), " +
                 "COURSENUM VARCHAR2(30), " +
                 "LOCATION VARCHAR2(30), " +
                 "DAY VARCHAR2(30), " +
@@ -682,9 +775,24 @@ namespace CourseScraper
             {
                 command.ExecuteNonQuery();
             }
+
+            var commandCreateSeq = "CREATE OR REPLACE TRIGGER " + tblName + "_TRIG " +
+                "BEFORE INSERT ON " + tblName + " " +
+                 "FOR EACH ROW " +
+                 "BEGIN " +
+                 "IF :new." + tblName + "_ID IS NULL THEN " +
+                 "SELECT COURSE_SEQ.nextval INTO :new." + tblName + "_ID FROM DUAL; " +
+                 "END IF; " +
+                 "END; ";
+
+            using (OracleCommand cmdCreateSeq = new OracleCommand(commandCreateSeq, connection))
+            {
+                cmdCreateSeq.ExecuteNonQuery();
+            }
+
         }
 
-        private static void insertOrcl(String connectionString, String filePath, String tblName) // Insert into oracle databse
+        private static void insertOrcl(String connectionString, String filePath, String tblName) // Insert into oracle database
         {
             using (var reader = new StreamReader(filePath)) // Open file
             {
@@ -728,6 +836,8 @@ namespace CourseScraper
                         cmdInsert.Parameters.Add(new OracleParameter(":EndTime", OracleDbType.Varchar2));
                         cmdInsert.Parameters.Add(new OracleParameter(":Instructor", OracleDbType.Varchar2));
 
+
+                        cmdInsert.Connection.Open();
                         // Add values to each parameters for each row in the file
                         while ((row = reader.ReadLine()) != null)
                         {
@@ -742,10 +852,9 @@ namespace CourseScraper
                             cmdInsert.Parameters[":EndTime"].Value = arrRow[5];
                             cmdInsert.Parameters[":Instructor"].Value = arrRow[6];
 
-                            cmdInsert.Connection.Open();
                             cmdInsert.ExecuteNonQuery();
-                            cmdInsert.Connection.Close();
                         }
+                        cmdInsert.Connection.Close();
                     }
                 }
             }
