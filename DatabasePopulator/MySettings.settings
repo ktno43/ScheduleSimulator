@@ -59,5 +59,8 @@
     <Setting Name="DOMS_DIRECTORY" Type="System.String" Scope="Application">
       <Value Profile="(Default)">F:\Projects\consoleApp\CourseScraper\bin\x64\Debug\Files\DOMS</Value>
     </Setting>
+    <Setting Name="TABLE_COURSE" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">tblCourse</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

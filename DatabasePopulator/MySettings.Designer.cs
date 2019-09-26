@@ -194,5 +194,14 @@ namespace CourseScraper.Properties {
                 return ((string)(this["DOMS_DIRECTORY"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("tblCourse")]
+        public string TABLE_COURSE {
+            get {
+                return ((string)(this["TABLE_COURSE"]));
+            }
+        }
     }
 }
