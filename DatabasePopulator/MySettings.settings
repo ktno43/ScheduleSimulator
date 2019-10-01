@@ -3,13 +3,13 @@
   <Profiles />
   <Settings>
     <Setting Name="CHROME_DRIVER_DIRECTORY" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">F:\Projects\consoleApp\CourseScraper\bin\x64\Debug</Value>
+      <Value Profile="(Default)">F:\Projects\AspNet\ConsoleApps\CourseScraper\bin\x64\Release</Value>
     </Setting>
     <Setting Name="FILE_DIRECTORY" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">F:\Projects\consoleApp\CourseScraper\bin\x64\Debug\Files</Value>
+      <Value Profile="(Default)">F:\Projects\AspNet\ConsoleApps\CourseScraper\bin\x64\Release\Files</Value>
     </Setting>
     <Setting Name="CONNECTION_STRING" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">User Id=kyle;Password=password;Data Source=kyle</Value>
+      <Value Profile="(Default)">Data Source=csuncoursesdb_high;User Id=ADMIN;Password=Password123!</Value>
     </Setting>
     <Setting Name="CONTENT_FRAME" Type="System.String" Scope="Application">
       <Value Profile="(Default)">ptifrmtgtframe</Value>
@@ -57,10 +57,10 @@
       <Value Profile="(Default)">NR_SSS_SOC_NWRK_DESCR100_2$</Value>
     </Setting>
     <Setting Name="DOMS_DIRECTORY" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">F:\Projects\consoleApp\CourseScraper\bin\x64\Debug\Files\DOMS</Value>
+      <Value Profile="(Default)">F:\Projects\AspNet\ConsoleApps\CourseScraper\bin\x64\Release\Files\DOMS</Value>
     </Setting>
-    <Setting Name="TABLE_COURSE" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">tblCourse</Value>
+    <Setting Name="TABLE_SUBJECT" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">tblSubj</Value>
     </Setting>
   </Settings>
 </SettingsFile>

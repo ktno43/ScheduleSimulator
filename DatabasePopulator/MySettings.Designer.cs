@@ -25,7 +25,7 @@ namespace CourseScraper.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("F:\\Projects\\consoleApp\\CourseScraper\\bin\\x64\\Debug")]
+        [global::System.Configuration.DefaultSettingValueAttribute("F:\\Projects\\AspNet\\ConsoleApps\\CourseScraper\\bin\\x64\\Release")]
         public string CHROME_DRIVER_DIRECTORY {
             get {
                 return ((string)(this["CHROME_DRIVER_DIRECTORY"]));
@@ -34,7 +34,7 @@ namespace CourseScraper.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("F:\\Projects\\consoleApp\\CourseScraper\\bin\\x64\\Debug\\Files")]
+        [global::System.Configuration.DefaultSettingValueAttribute("F:\\Projects\\AspNet\\ConsoleApps\\CourseScraper\\bin\\x64\\Release\\Files")]
         public string FILE_DIRECTORY {
             get {
                 return ((string)(this["FILE_DIRECTORY"]));
@@ -43,7 +43,7 @@ namespace CourseScraper.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("User Id=kyle;Password=password;Data Source=kyle")]
+        [global::System.Configuration.DefaultSettingValueAttribute("Data Source=csuncoursesdb_high;User Id=ADMIN;Password=Password123!")]
         public string CONNECTION_STRING {
             get {
                 return ((string)(this["CONNECTION_STRING"]));
@@ -188,7 +188,7 @@ namespace CourseScraper.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("F:\\Projects\\consoleApp\\CourseScraper\\bin\\x64\\Debug\\Files\\DOMS")]
+        [global::System.Configuration.DefaultSettingValueAttribute("F:\\Projects\\AspNet\\ConsoleApps\\CourseScraper\\bin\\x64\\Release\\Files\\DOMS")]
         public string DOMS_DIRECTORY {
             get {
                 return ((string)(this["DOMS_DIRECTORY"]));
@@ -197,10 +197,10 @@ namespace CourseScraper.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("tblCourse")]
-        public string TABLE_COURSE {
+        [global::System.Configuration.DefaultSettingValueAttribute("tblSubj")]
+        public string TABLE_SUBJECT {
             get {
-                return ((string)(this["TABLE_COURSE"]));
+                return ((string)(this["TABLE_SUBJECT"]));
             }
         }
     }
