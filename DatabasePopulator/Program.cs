@@ -229,7 +229,7 @@ namespace CourseScraper
             IList<IWebElement> subjectList = subjectDdList.Options; //Get list of IWeb elements
             writeSubj(subjectList); // Write all subjects to a file
 
-            insertOrclSubjTbl(Properties.MySettings.Default.CONNECTION_STRING, Path.Combine(Properties.MySettings.Default.FILE_DIRECTORY, "CourseList.txt"), Properties.MySettings.Default.TABLE_COURSE);
+            insertOrclSubjTbl(Properties.MySettings.Default.CONNECTION_STRING, Path.Combine(Properties.MySettings.Default.FILE_DIRECTORY, "CourseList.txt"), Properties.MySettings.Default.TABLE_SUBJECT);
 
             int numSubjects = subjectList.Count; // Number of subjects CSUN has
             String subjWriteName = String.Empty; // Subject file name
@@ -674,7 +674,7 @@ namespace CourseScraper
             var commandCreateTbl = "CREATE TABLE " + tblName + " " +
                 "(" + tblName + "_ID NUMBER, " +
                 "CreationDate DATE DEFAULT (SYSDATE), " +
-                "COURSE VARCHAR2(100))";
+                "SUBJECT VARCHAR2(100))";
 
             using (OracleCommand command = new OracleCommand(commandCreateTbl, connection))
             {
@@ -726,13 +726,13 @@ namespace CourseScraper
                     }
 
                     // Command to insert into oracle table
-                    var commandText = String.Format("INSERT INTO {0} (COURSE) " +
-                        "VALUES(:Course)", tblName);
+                    var commandText = String.Format("INSERT INTO {0} (SUBJECT) " +
+                        "VALUES(:Subject)", tblName);
 
                     using (OracleCommand cmdInsert = new OracleCommand(commandText, connection)) // Command to insert into oracle database
                     {
                         // Add parameters
-                        cmdInsert.Parameters.Add(new OracleParameter(":Course", OracleDbType.Varchar2));
+                        cmdInsert.Parameters.Add(new OracleParameter(":Subject", OracleDbType.Varchar2));
 
                         cmdInsert.Connection.Open();
 
@@ -747,7 +747,7 @@ namespace CourseScraper
                             }
 
                             // Add values to the parameters
-                            cmdInsert.Parameters[":Course"].Value = row;
+                            cmdInsert.Parameters[":Subject"].Value = row;
 
                             cmdInsert.ExecuteNonQuery();
                         }
