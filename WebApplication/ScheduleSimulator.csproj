@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="Properties\appsettings.json" CopyToPublishDirectory="Always" />
+    <None Include="Properties\project.json" CopyToPublishDirectory="Always" />	
+    <None Include="wwwroot\Wallet\cwallet.sso" CopyToPublishDirectory="Always" />
+    <None Include="wwwroot\Wallet\ewallet.p12" CopyToPublishDirectory="Always" />
+    <None Include="wwwroot\Wallet\keystore.jks" CopyToPublishDirectory="Always" />
+    <None Include="wwwroot\Wallet\ojdbc.properties" CopyToPublishDirectory="Always" />
+    <None Include="wwwroot\Wallet\sqlnet.ora" CopyToPublishDirectory="Always" />
+    <None Include="wwwroot\Wallet\tnsnames.ora" CopyToPublishDirectory="Always" />
+    <None Include="wwwroot\Wallet\truststore.jks" CopyToPublishDirectory="Always" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.Core" Version="3.3.103.56" />
+    <PackageReference Include="AWSSDK.ElasticBeanstalk" Version="3.3.100.91" />
+    <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.3.100.1" />
+    <PackageReference Include="bootstrap" Version="4.3.1" />
+    <PackageReference Include="BuildBundlerMinifier" Version="3.0.415" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.16" />
+    <PackageReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.1.2" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.1.1" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.1.9" />
+    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="2.19.31" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="wwwroot\project.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\Properties\appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>
